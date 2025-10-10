@@ -38,21 +38,7 @@ button.addEventListener("click", function () {
 
 
 
-//A function that returns a promise
-// function fetchData(){
-//     return new promise ((resolve) =>{
-//         setTimeout(() =>{
-//             resolve("Data received!");
-//         },2000);
-//     });
-// }
-// //Using asyn/await
-// async function getData(){
-// console.log("Fetching...");
-// const result = await fetchData();//waits until fetchData() is resolved
-// console.log(result);//prints "Data received!"after 2 seconds
-// }
-// getData();
+
 
 
   
