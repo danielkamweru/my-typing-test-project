@@ -71,6 +71,7 @@ let testText = '';
 let startTime = null;
 let timerInterval = null;
 let isTestActive = false;
+let isTestReady = false;
 let totalCharacters = 0;
 let correctCharacters = 0;
 
@@ -148,22 +149,32 @@ function startTest() {
     textInput.disabled = false;
     textInput.focus();
     
-    startTime = Date.now();
-    isTestActive = true;
+    isTestReady = true;
     
-    startBtn.textContent = 'Testing...';
+    startBtn.textContent = 'Ready to Type';
     startBtn.disabled = true;
     resetBtn.disabled = false;
     
     // Disable difficulty selection during test
     difficultyBtns.forEach(btn => btn.disabled = true);
     
-    timerInterval = setInterval(() => {
-        updateTimer();
-        updateWPM();
-    }, 100);
-    
-    results.textContent = 'Type the text above. Good luck! 🚀';
+    results.textContent = 'Start typing to begin the timer! 🚀';
+}
+
+// Start timer when user begins typing
+function startTimer() {
+    if (!isTestActive && isTestReady) {
+        startTime = Date.now();
+        isTestActive = true;
+        startBtn.textContent = 'Typing...';
+        
+        timerInterval = setInterval(() => {
+            updateTimer();
+            updateWPM();
+        }, 100);
+        
+        results.textContent = 'Keep typing! You\'re doing great! 🚀';
+    }
 }
 
 // End test
@@ -203,6 +214,7 @@ function endTest() {
 // Reset test
 function resetTest() {
     isTestActive = false;
+    isTestReady = false;
     clearInterval(timerInterval);
     
     textDisplay.textContent = 'Click "Start Test" to begin';
@@ -244,6 +256,11 @@ difficultyBtns.forEach(btn => {
 
 // Text input events
 textInput.addEventListener('input', () => {
+    // Start timer on first keystroke
+    if (isTestReady && !isTestActive) {
+        startTimer();
+    }
+    
     if (!isTestActive) return;
     
     updateAccuracy();
