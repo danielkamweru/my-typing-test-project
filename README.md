@@ -36,7 +36,7 @@ A modern, interactive typing speed test with multiple difficulty levels and real
 5. **Type** the displayed sentence as accurately as possible
 6. **View** your results and try to improve!
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 Typing-test/
@@ -46,7 +46,7 @@ Typing-test/
 └── README.md       # Project documentation
 ```
 
-## 🎮 How to Use
+##  How to Use
 
 1. **Select Difficulty**: Choose Easy, Medium, or Hard
 2. **Start Test**: Click the "Start Test" button
