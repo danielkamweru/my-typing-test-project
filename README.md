@@ -1,33 +1,33 @@
-# 🚀 Smart Typing Test
+#  Smart Typing Test
 
 A modern, interactive typing speed test with multiple difficulty levels and real-time performance tracking.
 
-## ✨ Features
+##  Features
 
-### 🎯 **Difficulty Levels**
+###  **Difficulty Levels**
 - **Easy**: Simple sentences with common words
 - **Medium**: Complex sentences with varied vocabulary  
 - **Hard**: Advanced sentences with sophisticated terminology
 
-### 📊 **Real-Time Statistics**
+###  **Real-Time Statistics**
 - **WPM (Words Per Minute)**: Live speed calculation
 - **Accuracy**: Real-time error tracking with visual feedback
 - **Timer**: Precise time measurement
 - **Performance Rating**: Instant feedback on your results
 
-### 🎨 **Modern Design**
+###  **Modern Design**
 - **Responsive Layout**: Works on desktop and mobile devices
 - **Dark/Light Theme**: Toggle between themes with preference saving
 - **Visual Feedback**: Color-coded correct/incorrect text highlighting
 - **Smooth Animations**: Professional hover effects and transitions
 
-### 🛡️ **Smart Features**
+###  **Smart Features**
 - **Anti-Cheat**: Prevents copy/paste for fair testing
 - **Auto-Complete**: Test ends when you finish typing
 - **Sentence Practice**: Real-world typing scenarios instead of random words
 - **Theme Persistence**: Remembers your preferred theme
 
-## 🚀 Getting Started
+##  Getting Started
 
 1. **Clone or Download** the project files
 2. **Open** `index.html` in your web browser
@@ -55,18 +55,18 @@ Typing-test/
 5. **Get Results**: Receive performance feedback when complete
 6. **Reset & Retry**: Use the Reset button to try again
 
-## 🌙 Theme Toggle
+##  Theme Toggle
 
 Click the moon/sun icon in the top-right corner to switch between light and dark themes. Your preference is automatically saved.
 
-## 🏆 Performance Ratings
+##  Performance Ratings
 
-- **Excellent** 🏆: 60+ WPM with 95%+ accuracy
-- **Great** 🎉: 40+ WPM with 90%+ accuracy  
-- **Good** 👍: 25+ WPM with 80%+ accuracy
-- **Keep Practicing** 💪: Below benchmarks
+- **Excellent** : 60+ WPM with 95%+ accuracy
+- **Great** : 40+ WPM with 90%+ accuracy  
+- **Good** : 25+ WPM with 80%+ accuracy
+- **Keep Practicing** : Below benchmarks
 
-## 🛠️ Technologies Used
+##  Technologies Used
 
 - **HTML5**: Semantic structure
 - **CSS3**: Modern styling with gradients and animations
@@ -74,7 +74,7 @@ Click the moon/sun icon in the top-right corner to switch between light and dark
 - **Local Storage**: Theme preference persistence
 - **Google Fonts**: Inter font family
 
-## 📱 Browser Compatibility
+##  Browser Compatibility
 
 Works on all modern browsers including:
 - Chrome, Firefox, Safari, Edge
@@ -82,4 +82,4 @@ Works on all modern browsers including:
 
 ---
 
-**Happy Typing!** 🎯 Improve your typing speed and accuracy with this engaging practice tool.
+**Happy Typing!** Improve your typing speed and accuracy with this engaging practice tool.
