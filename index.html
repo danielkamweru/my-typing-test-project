@@ -2,55 +2,281 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Typing Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TypeMaster Pro - World-Class Typing Test</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <meta name="description" content="Professional typing test with real-time feedback, multiple modes, and detailed analytics">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🚀 Smart Typing Test</h1>
-            <button id="theme-toggle" class="theme-toggle">🌙</button>
-        </div>
-        
-        <div class="difficulty-selector">
-            <h3>Choose Difficulty:</h3>
-            <div class="difficulty-buttons">
-                <button class="difficulty-btn active" data-level="easy">Easy</button>
-                <button class="difficulty-btn" data-level="medium">Medium</button>
-                <button class="difficulty-btn" data-level="hard">Hard</button>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>TypeMaster<span class="pro">Pro</span></h1>
+            </div>
+            <div class="header-controls">
+                <button id="settings-btn" class="icon-btn" title="Settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v6m0 6v6m4.22-13.22l4.24 4.24M1.54 1.54l4.24 4.24M20.46 20.46l-4.24-4.24M1.54 20.46l4.24-4.24"></path>
+                    </svg>
+                </button>
+                <button id="theme-toggle" class="icon-btn" title="Toggle theme">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Test Configuration -->
+            <section class="test-config">
+                <div class="config-row">
+                    <div class="mode-selector">
+                        <label class="config-label">Mode</label>
+                        <div class="mode-buttons">
+                            <button class="mode-btn active" data-mode="time">Time</button>
+                            <button class="mode-btn" data-mode="words">Words</button>
+                        </div>
+                    </div>
+                    
+                    <div class="time-selector" id="time-selector">
+                        <label class="config-label">Duration</label>
+                        <div class="time-buttons">
+                            <button class="time-btn" data-time="15">15s</button>
+                            <button class="time-btn active" data-time="30">30s</button>
+                            <button class="time-btn" data-time="60">60s</button>
+                            <button class="time-btn" data-time="120">120s</button>
+                            <button class="time-btn custom-time" data-time="custom">Custom</button>
+                        </div>
+                    </div>
+
+                    <div class="words-selector hidden" id="words-selector">
+                        <label class="config-label">Words</label>
+                        <div class="words-buttons">
+                            <button class="words-btn" data-words="10">10</button>
+                            <button class="words-btn active" data-words="25">25</button>
+                            <button class="words-btn" data-words="50">50</button>
+                            <button class="words-btn" data-words="100">100</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-row">
+                    <div class="difficulty-selector">
+                        <label class="config-label">Difficulty</label>
+                        <div class="difficulty-buttons">
+                            <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+                            <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+                            <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+                            <button class="difficulty-btn" data-difficulty="expert">Expert</button>
+                        </div>
+                    </div>
+
+                    <div class="punctuation-selector">
+                        <label class="config-label">Punctuation</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="punctuation-toggle">
+                            <label for="punctuation-toggle" class="switch"></label>
+                        </div>
+                    </div>
+
+                    <div class="sound-selector">
+                        <label class="config-label">Sound</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="sound-toggle" checked>
+                            <label for="sound-toggle" class="switch"></label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Stats -->
+            <section class="live-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="wpm-display">0</div>
+                    <div class="stat-label">WPM</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="accuracy-display">100%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="time-display">30</div>
+                    <div class="stat-label">Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="chars-display">0</div>
+                    <div class="stat-label">Chars</div>
+                </div>
+            </section>
+
+            <!-- Test Area -->
+            <section class="test-area">
+                <div id="text-display" class="text-display">
+                    <span class="placeholder">Press Start to begin the test...</span>
+                </div>
+                <div class="input-wrapper">
+                    <textarea id="text-input" 
+                             class="text-input" 
+                             placeholder="Start typing here..." 
+                             disabled 
+                             autocomplete="off" 
+                             autocorrect="off" 
+                             autocapitalize="off" 
+                             spellcheck="false"></textarea>
+                    <div class="input-cursor"></div>
+                </div>
+            </section>
+
+            <!-- Test Controls -->
+            <section class="test-controls">
+                <button id="start-btn" class="btn btn-primary">Start Test</button>
+                <button id="reset-btn" class="btn btn-secondary" disabled>Reset</button>
+                <button id="next-test-btn" class="btn btn-secondary hidden">Next Test</button>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results-section" class="results-section hidden">
+                <div class="results-content">
+                    <h2>Test Complete!</h2>
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <div class="result-value" id="final-wpm">0</div>
+                            <div class="result-label">WPM</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-value" id="final-accuracy">0%</div>
+                            <div class="result-label">Accuracy</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-value" id="final-time">0s</div>
+                            <div class="result-label">Time</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-value" id="final-chars">0</div>
+                            <div class="result-label">Characters</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-value" id="final-raw">0</div>
+                            <div class="result-label">Raw WPM</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-value" id="final-consistency">0%</div>
+                            <div class="result-label">Consistency</div>
+                        </div>
+                    </div>
+                    <div class="performance-rating" id="performance-rating">
+                        <div class="rating-emoji">👍</div>
+                        <div class="rating-text">Good work!</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section class="history-section">
+                <div class="history-header">
+                    <h3>Recent Tests</h3>
+                    <button id="clear-history" class="btn btn-small">Clear</button>
+                </div>
+                <div id="history-list" class="history-list">
+                    <div class="no-history">No test history yet</div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Settings</h3>
+                    <button id="close-settings" class="icon-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-item">
+                        <label class="setting-label">Font Size</label>
+                        <select id="font-size-select">
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">Font Family</label>
+                        <select id="font-family-select">
+                            <option value="inter" selected>Inter</option>
+                            <option value="jetbrains">JetBrains Mono</option>
+                            <option value="system">System</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">Theme</label>
+                        <select id="theme-select">
+                            <option value="light" selected>Light</option>
+                            <option value="dark">Dark</option>
+                            <option value="auto">Auto</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">Key Bindings</label>
+                        <div class="keybindings">
+                            <div class="keybinding">
+                                <kbd>Esc</kbd> <span>Reset Test</span>
+                            </div>
+                            <div class="keybinding">
+                                <kbd>Tab</kbd> <span>Restart Test</span>
+                            </div>
+                            <div class="keybinding">
+                                <kbd>Space</kbd> <span>Start Test</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="test-area">
-            <div id="text-display" class="text-display">Click "Start Test" to begin</div>
-            <textarea id="text-input" class="text-input" placeholder="Type the text above here..." disabled></textarea>
-        </div>
-
-        <div class="controls">
-            <button id="start-btn" class="start-btn">Start Test</button>
-            <button id="reset-btn" class="reset-btn" disabled>Reset</button>
-        </div>
-
-        <div class="stats">
-            <div class="stat-item">
-                <span class="stat-label">Time:</span>
-                <span id="timer">0s</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">WPM:</span>
-                <span id="wpm">0</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Accuracy:</span>
-                <span id="accuracy">100%</span>
+        <!-- Custom Time Modal -->
+        <div id="custom-time-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Custom Time</h3>
+                    <button id="close-custom-time" class="icon-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="custom-time-input">
+                        <input type="number" id="custom-time-value" min="5" max="300" value="60" placeholder="Seconds">
+                        <span class="input-suffix">seconds</span>
+                    </div>
+                    <button id="apply-custom-time" class="btn btn-primary">Apply</button>
+                </div>
             </div>
         </div>
-
-        <div id="results" class="results"></div>
     </div>
-    
+
     <script src="index.js"></script>
 </body>
 </html>
