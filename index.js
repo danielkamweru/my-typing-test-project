@@ -11,7 +11,7 @@ class TypingTestApp {
             difficulty: 'easy',
             punctuationEnabled: false,
             soundEnabled: true,
-            theme: 'light'
+            theme: 'auto'
         };
 
         // Test state
@@ -31,6 +31,10 @@ class TypingTestApp {
             currentWordIndex: 0
         };
 
+        // Performance optimization
+        this.updateTimeout = null;
+        this.renderCache = new Map();
+        
         // Word pools for different difficulties
         this.wordPools = {
             easy: [
@@ -88,7 +92,7 @@ class TypingTestApp {
 
         // Punctuation marks
         this.punctuation = ['.', ',', '!', '?', ';', ':', '-', '"', "'", '(', ')'];
-
+        
         // DOM elements
         this.elements = {};
         
@@ -354,9 +358,8 @@ class TypingTestApp {
         // Update character tracking
         this.updateCharacterTracking(previousLength);
         
-        // Update display
-        this.elements.textDisplay.innerHTML = this.renderText();
-        this.updateLiveStats();
+        // Debounced display update for performance
+        this.debouncedUpdate();
         
         // Play sound effects
         if (this.config.soundEnabled) {
@@ -369,6 +372,19 @@ class TypingTestApp {
         }
     }
 
+    // Debounced update for performance
+    debouncedUpdate() {
+        if (this.updateTimeout) {
+            clearTimeout(this.updateTimeout);
+        }
+        
+        this.updateTimeout = setTimeout(() => {
+            this.elements.textDisplay.innerHTML = this.renderText();
+            this.updateLiveStats();
+            this.scrollToCurrentChar();
+        }, 16); // ~60fps
+    }
+
     // Update character tracking
     updateCharacterTracking(previousLength) {
         const typedLength = this.state.typedText.length;
@@ -378,7 +394,10 @@ class TypingTestApp {
             // Character was added
             const charIndex = typedLength - 1;
             if (charIndex < textLength) {
-                if (this.state.typedText[charIndex] === this.state.currentText[charIndex]) {
+                const typedChar = this.state.typedText[charIndex];
+                const expectedChar = this.state.currentText[charIndex];
+                
+                if (typedChar === expectedChar) {
                     this.state.correctChars++;
                 } else {
                     this.state.incorrectChars++;
@@ -388,6 +407,26 @@ class TypingTestApp {
         } else if (typedLength < previousLength) {
             // Character was removed - recalculate
             this.recalculateCharacterStats();
+        }
+    }
+
+    // Scroll to current character
+    scrollToCurrentChar() {
+        const currentChar = this.elements.textDisplay.querySelector('.char.current');
+        if (currentChar) {
+            const textDisplay = this.elements.textDisplay;
+            const charRect = currentChar.getBoundingClientRect();
+            const displayRect = textDisplay.getBoundingClientRect();
+            
+            // Check if current character is outside the visible area
+            if (charRect.bottom > displayRect.bottom || charRect.top < displayRect.top) {
+                // Smooth scroll to bring the character into view
+                currentChar.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'nearest'
+                });
+            }
         }
     }
 
@@ -413,21 +452,49 @@ class TypingTestApp {
         const typed = this.state.typedText;
         let html = '';
         
-        for (let i = 0; i < text.length; i++) {
-            let className = 'char';
-            
-            if (i < typed.length) {
-                if (typed[i] === text[i]) {
-                    className += ' correct';
-                } else {
-                    className += ' incorrect';
+        // Split text into words to preserve spacing
+        const words = text.split(' ');
+        let charIndex = 0;
+        
+        words.forEach((word, wordIndex) => {
+            // Render each character in the word
+            for (let i = 0; i < word.length; i++) {
+                const globalCharIndex = charIndex;
+                let className = 'char';
+                
+                if (globalCharIndex < typed.length) {
+                    if (typed[globalCharIndex] === text[globalCharIndex]) {
+                        className += ' correct';
+                    } else {
+                        className += ' incorrect';
+                    }
+                } else if (globalCharIndex === typed.length) {
+                    className += ' current';
                 }
-            } else if (i === typed.length) {
-                className += ' current';
+                
+                html += `<span class="${className}">${text[globalCharIndex]}</span>`;
+                charIndex++;
             }
             
-            html += `<span class="${className}">${text[i]}</span>`;
-        }
+            // Add space after word (except last word)
+            if (wordIndex < words.length - 1) {
+                const spaceIndex = charIndex;
+                let className = 'char space';
+                
+                if (spaceIndex < typed.length) {
+                    if (typed[spaceIndex] === text[spaceIndex]) {
+                        className += ' correct';
+                    } else {
+                        className += ' incorrect';
+                    }
+                } else if (spaceIndex === typed.length) {
+                    className += ' current';
+                }
+                
+                html += `<span class="${className}"> </span>`;
+                charIndex++;
+            }
+        });
         
         return html;
     }
@@ -458,16 +525,17 @@ class TypingTestApp {
         
         // WPM calculation (5 chars = 1 word, industry standard)
         const minutes = elapsed / 60;
-        const wordsTyped = this.state.correctChars / 5;
-        const wpm = minutes > 0 ? Math.round(wordsTyped / minutes) : 0;
+        const correctChars = this.state.correctChars;
+        const wpm = minutes > 0 ? Math.round((correctChars / 5) / minutes) : 0;
         
-        // Accuracy calculation
+        // Accuracy calculation - only count characters that were attempted
         const accuracy = this.state.totalChars > 0 ? 
             Math.round((this.state.correctChars / this.state.totalChars) * 100) : 100;
         
-        // Raw WPM (including errors)
+        // Raw WPM (including errors and spaces)
+ const totalTyped = this.state.typedText.length;
         const rawWpm = minutes > 0 ? 
-            Math.round((this.state.typedText.length / 5) / minutes) : 0;
+            Math.round((totalTyped / 5) / minutes) : 0;
         
         // Update display
         this.elements.wpmDisplay.textContent = wpm;
@@ -491,9 +559,13 @@ class TypingTestApp {
     // Check test completion
     checkTestCompletion() {
         if (this.config.mode === 'words') {
-            const wordsTyped = this.state.typedText.trim().split(/\s+/).length;
-            return wordsTyped >= this.config.wordCount && 
-                   this.state.typedText.trim().length >= this.state.currentText.trim().length;
+            const typedWords = this.state.typedText.trim().split(/\s+/).filter(word => word.length > 0).length;
+            const targetWords = this.config.wordCount;
+            
+            // Check if user has typed at least the target number of words
+            // and the typed text matches the expected text length
+            return typedWords >= targetWords && 
+                   this.state.typedText.length >= this.state.currentText.length;
         }
         return false;
     }
@@ -646,48 +718,56 @@ class TypingTestApp {
     playTypingSound(isCorrect) {
         if (!this.config.soundEnabled) return;
         
-        // Create simple beep sounds using Web Audio API
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.value = isCorrect ? 800 : 400;
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.1);
+        try {
+            // Create simple beep sounds using Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = isCorrect ? 800 : 400;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.05, audioContext.currentTime); // Lower volume
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        } catch (e) {
+            // Silently fail if audio context is not supported
+        }
     }
 
     playCompletionSound() {
         if (!this.config.soundEnabled) return;
         
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const notes = [523.25, 659.25, 783.99]; // C, E, G
-        
-        notes.forEach((freq, index) => {
-            setTimeout(() => {
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = freq;
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.2);
-            }, index * 100);
-        });
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [523.25, 659.25, 783.99]; // C, E, G
+            
+            notes.forEach((freq, index) => {
+                setTimeout(() => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                }, index * 100);
+            });
+        } catch (e) {
+            // Silently fail if audio context is not supported
+        }
     }
 
     // Settings and preferences
@@ -726,6 +806,9 @@ class TypingTestApp {
         } else {
             document.documentElement.setAttribute('data-theme', theme);
         }
+        
+        // Add smooth transition for theme change
+        document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
     }
 
     toggleTheme() {
@@ -734,6 +817,31 @@ class TypingTestApp {
         document.documentElement.setAttribute('data-theme', newTheme);
         this.config.theme = newTheme;
         this.saveSettings();
+        
+        // Add animation effect
+        this.animateThemeChange();
+    }
+    
+    animateThemeChange() {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--accent-primary);
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        `;
+        document.body.appendChild(overlay);
+        
+        setTimeout(() => {
+            overlay.style.opacity = '0';
+            setTimeout(() => document.body.removeChild(overlay), 300);
+        }, 10);
     }
 
     setTheme(theme) {
